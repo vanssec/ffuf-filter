@@ -1,4 +1,5 @@
 import json
+from collections import Counter
 
 # Replace this with the file path to your JSON file
 input_file = "input.json"
@@ -10,10 +11,18 @@ with open(input_file, "r") as file:
 # Extract the "results" section
 results = data.get("results", [])
 
-# Filter rows based on status codes starting with 3 or 5
+# Step 1: Count occurrences of each Words Count
+words_count_values = [result.get("words", 0) for result in results]
+words_count_counter = Counter(words_count_values)
+
+# Step 2: Find Words Count values that occur more than 5 times
+excluded_word_counts = {word_count for word_count, count in words_count_counter.items() if count > 5}
+
+# Step 3: Filter rows based on status codes and excluded Words Count values
 filtered_results = [
     result for result in results
-    if not str(result.get("status", "")).startswith(("3", "5"))
+    if not str(result.get("status", "")).startswith(("3", "5"))  # Exclude status codes starting with 3 or 5
+    and result.get("words", 0) not in excluded_word_counts  # Exclude rows with Words Count occurring > 5 times
 ]
 
 # Start generating HTML
